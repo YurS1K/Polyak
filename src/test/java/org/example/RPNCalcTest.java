@@ -172,9 +172,6 @@ class RPNCalcTest {
                 () -> RPNCalc.evaluateRPN(expression));
     }
 
-    /**
-     * Интеграционный тест: преобразование и вычисление
-     */
     @ParameterizedTest
     @CsvSource({
             "2+3, 5.0",
