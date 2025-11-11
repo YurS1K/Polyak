@@ -38,7 +38,7 @@ public class RPNCalc {
                 System.out.println("ОПН: " + String.join(" ", rpn));
 
                 double result = evaluateRPN(rpn);
-                System.out.println("Результат: " + result + 1);
+                System.out.println("Результат: " + result);
 
             } catch (Exception e) {
                 System.out.println("Ошибка: " + e.getMessage());
@@ -133,7 +133,7 @@ public class RPNCalc {
             throw new IllegalArgumentException("Некорректное выражение");
         }
 
-        return stack.pop();
+        return stack.pop() + 1;
     }
 
     /**
