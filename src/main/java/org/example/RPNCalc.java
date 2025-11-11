@@ -1,3 +1,5 @@
+package org.example;
+
 import java.util.*;
 
 public class RPNCalc {
@@ -33,11 +35,9 @@ public class RPNCalc {
             }
 
             try {
-                // Преобразование в ОПН
                 List<String> rpn = infixToRPN(input);
                 System.out.println("ОПН: " + String.join(" ", rpn));
 
-                // Вычисление результата
                 double result = evaluateRPN(rpn);
                 System.out.println("Результат: " + result);
 
@@ -56,7 +56,6 @@ public class RPNCalc {
         List<String> output = new ArrayList<>();
         Stack<Character> operators = new Stack<>();
 
-        // Удаляем пробелы для упрощения обработки
         expression = expression.replaceAll("\\s+", "");
 
         int i = 0;
@@ -64,7 +63,6 @@ public class RPNCalc {
             char c = expression.charAt(i);
 
             if (Character.isDigit(c) || c == '.') {
-                // Обработка чисел (включая десятичные)
                 StringBuilder number = new StringBuilder();
                 while (i < expression.length() &&
                         (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
@@ -74,21 +72,21 @@ public class RPNCalc {
                 output.add(number.toString());
                 continue;
             }
-            else if (c == '(') {
-                operators.push(c);
+            
+            switch (c){
+                case '(':
+                    operators.push(c);
+                case ')':
+                    while (!operators.isEmpty() && operators.peek() != '(') {
+                        output.add(String.valueOf(operators.pop()));
+                    }
+                    if (operators.isEmpty() || operators.peek() != '(') {
+                        throw new IllegalArgumentException("Несогласованные скобки");
+                    }
+                    operators.pop();
             }
-            else if (c == ')') {
-                // Выталкиваем операторы до открывающей скобки
-                while (!operators.isEmpty() && operators.peek() != '(') {
-                    output.add(String.valueOf(operators.pop()));
-                }
-                if (operators.isEmpty() || operators.peek() != '(') {
-                    throw new IllegalArgumentException("Несогласованные скобки");
-                }
-                operators.pop(); // Удаляем '('
-            }
-            else if (isOperator(c)) {
-                // Обработка операторов
+            
+            if (isOperator(c)) {
                 while (!operators.isEmpty() &&
                         operators.peek() != '(' &&
                         hasHigherPrecedence(operators.peek(), c)) {
@@ -103,7 +101,6 @@ public class RPNCalc {
             i++;
         }
 
-        // Выталкиваем оставшиеся операторы
         while (!operators.isEmpty()) {
             if (operators.peek() == '(') {
                 throw new IllegalArgumentException("Несогласованные скобки");
@@ -114,32 +111,33 @@ public class RPNCalc {
         return output;
     }
 
-/*** Вычисление выражения в ОПН
- */
-public static double evaluateRPN(List<String> rpn) {
-    Stack<Double> stack = new Stack<>();
+    /**
+     * Вычисление выражения в ОПН
+     */
+    public static double evaluateRPN(List<String> rpn) {
+        Stack<Double> stack = new Stack<>();
 
-    for (String token : rpn) {
-        if (isNumber(token)) {
-            stack.push(Double.parseDouble(token));
-        } else if (isOperator(token.charAt(0))) {
-            if (stack.size() < 2) {
-                throw new IllegalArgumentException("Недостаточно операндов для операции " + token);
+        for (String s : rpn) {
+            if (isNumber(s)) {
+                stack.push(Double.parseDouble(s));
+            } else if (isOperator(s.charAt(0))) {
+                if (stack.size() < 2) {
+                    throw new IllegalArgumentException("Недостаточно операндов для операции " + s);
+                }
+
+                double b = stack.pop();
+                double a = stack.pop();
+                double result = performOperation(s.charAt(0), a, b);
+                stack.push(result);
             }
-
-            double b = stack.pop();
-            double a = stack.pop();
-            double result = performOperation(token.charAt(0), a, b);
-            stack.push(result);
         }
-    }
 
-    if (stack.size() != 1) {
-        throw new IllegalArgumentException("Некорректное выражение");
-    }
+        if (stack.size() != 1) {
+            throw new IllegalArgumentException("Некорректное выражение");
+        }
 
-    return stack.pop();
-}
+        return stack.pop();
+    }
 
     /**
      * Выполнение математической операции
