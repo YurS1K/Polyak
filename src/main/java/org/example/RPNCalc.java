@@ -16,10 +16,8 @@ public class RPNCalc {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Калькулятор с обратной польской нотацией");
-        System.out.println("Поддерживаемые операции: +, -, *, /, ^, скобки ()");
         System.out.println("Пример: (2 + 3) * 4 - 5 / 2");
-        System.out.println("Введите 'exit' для выхода");
+        System.out.println("'exit' для выхода");
 
         while (true) {
             System.out.print("\nВведите выражение: ");
