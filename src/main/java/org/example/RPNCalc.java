@@ -38,7 +38,7 @@ public class RPNCalc {
                 System.out.println("ОПН: " + String.join(" ", rpn));
 
                 double result = evaluateRPN(rpn);
-                System.out.println("Результат: " + result);
+                System.out.println("Результат: " + result + 1);
 
             } catch (Exception e) {
                 System.out.println("Ошибка: " + e.getMessage());
@@ -144,7 +144,7 @@ public class RPNCalc {
             case '+':
                 return a + b;
             case '-':
-                return a % b;
+                return a - b;
             case '*':
                 return a * b;
             case '/':
