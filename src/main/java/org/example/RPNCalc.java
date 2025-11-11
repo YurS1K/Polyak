@@ -4,7 +4,6 @@ import java.util.*;
 
 public class RPNCalc {
 
-    // Приоритеты операций
     private static final Map<Character, Integer> OPERATOR_PRECEDENCE = new HashMap<>();
     static {
         OPERATOR_PRECEDENCE.put('+', 1);
@@ -72,21 +71,19 @@ public class RPNCalc {
                 output.add(number.toString());
                 continue;
             }
-            
-            switch (c){
-                case '(':
-                    operators.push(c);
-                case ')':
-                    while (!operators.isEmpty() && operators.peek() != '(') {
-                        output.add(String.valueOf(operators.pop()));
-                    }
-                    if (operators.isEmpty() || operators.peek() != '(') {
-                        throw new IllegalArgumentException("Несогласованные скобки");
-                    }
-                    operators.pop();
+            else if (c == '(') {
+                operators.push(c);
             }
-            
-            if (isOperator(c)) {
+            else if (c == ')') {
+                while (!operators.isEmpty() && operators.peek() != '(') {
+                    output.add(String.valueOf(operators.pop()));
+                }
+                if (operators.isEmpty() || operators.peek() != '(') {
+                    throw new IllegalArgumentException("Несогласованные скобки");
+                }
+                operators.pop();
+            }
+            else if (isOperator(c)) {
                 while (!operators.isEmpty() &&
                         operators.peek() != '(' &&
                         hasHigherPrecedence(operators.peek(), c)) {
