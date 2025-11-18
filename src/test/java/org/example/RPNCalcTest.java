@@ -12,8 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RPNCalcTest {
 
+    private static final String TWO_POINT_FIVE = "2.5";
+    private static final String THREE_POINT_ONE = "3.1";
+    private static final String ONE_POINT_FIVE = "1.5";
     /**
-     * Преобразование простых выражений в ОПН
+     * Simple expressions conversion to RPN
      */
     @Test
     void testInfixToRPN_SimpleExpressions() {
@@ -27,7 +30,7 @@ class RPNCalcTest {
     }
 
     /**
-     * Преобразование выражений с приоритетами операций
+     * Expressions with operator precedence conversion
      */
     @Test
     void testInfixToRPN_OperatorPrecedence() {
@@ -44,7 +47,7 @@ class RPNCalcTest {
     }
 
     /**
-     * Преобразование выражений со скобками
+     * Expressions with parentheses conversion
      */
     @Test
     void testInfixToRPN_WithParentheses() {
@@ -59,20 +62,20 @@ class RPNCalcTest {
     }
 
     /**
-     * Преобразование выражений с десятичными числами
+     * Expressions with decimal numbers conversion
      */
     @Test
     void testInfixToRPN_DecimalNumbers() {
         assertAll(
-                () -> assertEquals(List.of("2.5", "3.1", "+"),
+                () -> assertEquals(List.of(TWO_POINT_FIVE, THREE_POINT_ONE, "+"),
                         RPNCalc.infixToRPN("2.5 + 3.1")),
-                () -> assertEquals(List.of("2.5", "3", "*", "1.5", "+"),
+                () -> assertEquals(List.of(TWO_POINT_FIVE, "3", "*", ONE_POINT_FIVE, "+"),
                         RPNCalc.infixToRPN("2.5 * 3 + 1.5"))
         );
     }
 
     /**
-     * Выброс исключения при несогласованных скобках
+     * Exception thrown for mismatched parentheses
      */
     @Test
     void testInfixToRPN_MismatchedParentheses() {
@@ -85,7 +88,7 @@ class RPNCalcTest {
     }
 
     /**
-     * Выброс исключения при недопустимых символах
+     * Exception thrown for invalid characters
      */
     @Test
     void testInfixToRPN_InvalidCharacters() {
@@ -94,9 +97,9 @@ class RPNCalcTest {
     }
 
     /**
-     * Вычисление простых операций
-     * @param rpn
-     * @param expected
+     * Simple operations evaluation
+     * @param rpn RPN expression
+     * @param expected expected result
      */
     @ParameterizedTest
     @CsvSource({
@@ -112,9 +115,9 @@ class RPNCalcTest {
     }
 
     /**
-     * Вычисление сложных выражений
-     * @param rpn
-     * @param expected
+     * Complex expressions evaluation
+     * @param rpn RPN expression
+     * @param expected expected result
      */
     @ParameterizedTest
     @CsvSource({
@@ -130,20 +133,20 @@ class RPNCalcTest {
     }
 
     /**
-     * Вычисление выражений с десятичными числами
+     * Decimal numbers evaluation
      */
     @Test
     void testEvaluateRPN_DecimalNumbers() {
         assertAll(
                 () -> assertEquals(5.6,
-                        RPNCalc.evaluateRPN(List.of("2.5", "3.1", "+")), 1e-9),
+                        RPNCalc.evaluateRPN(List.of(TWO_POINT_FIVE, THREE_POINT_ONE, "+")), 1e-9),
                 () -> assertEquals(9.0,
-                        RPNCalc.evaluateRPN(List.of("2.5", "3", "*", "1.5", "+")), 1e-9)
+                        RPNCalc.evaluateRPN(List.of(TWO_POINT_FIVE, "3", "*", ONE_POINT_FIVE, "+")), 1e-9)
         );
     }
 
     /**
-     * Выброс исключения при делении на ноль
+     * Exception thrown for division by zero
      */
     @Test
     void testEvaluateRPN_DivisionByZero() {
@@ -153,7 +156,7 @@ class RPNCalcTest {
     }
 
     /**
-     * Выброс исключения при недостатке операндов
+     * Exception thrown for insufficient operands
      */
     @Test
     void testEvaluateRPN_InsufficientOperands() {
@@ -163,7 +166,7 @@ class RPNCalcTest {
     }
 
     /**
-     * Выброс исключения при некорректном выражении
+     * Exception thrown for invalid expression
      */
     @Test
     void testEvaluateRPN_InvalidExpression() {
@@ -172,6 +175,11 @@ class RPNCalcTest {
                 () -> RPNCalc.evaluateRPN(expression));
     }
 
+    /**
+     * Full integration test
+     * @param infix infix expression
+     * @param expected expected result
+     */
     @ParameterizedTest
     @CsvSource({
             "2+3, 5.0",

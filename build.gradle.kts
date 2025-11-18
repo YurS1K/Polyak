@@ -16,6 +16,15 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+pmd {
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+}
+
 tasks.test {
     useJUnitPlatform()
 }

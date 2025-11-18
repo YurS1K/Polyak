@@ -5,6 +5,12 @@ import java.util.*;
 public class RPNCalc {
 
     private static final Map<Character, Integer> OPERATOR_PRECEDENCE = new HashMap<>();
+    private static final char LEFT_PARENTHESIS = '(';
+    private static final char RIGHT_PARENTHESIS = ')';
+    private static final char DECIMAL_POINT = '.';
+    private static final int MIN_OPERANDS_FOR_BINARY_OPERATOR = 2;
+    private static final int EXPECTED_STACK_SIZE_AFTER_EVALUATION = 1;
+
     static {
         OPERATOR_PRECEDENCE.put('+', 1);
         OPERATOR_PRECEDENCE.put('-', 1);
@@ -14,40 +20,38 @@ public class RPNCalc {
     }
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.println("Example: (2 + 3) * 4 - 5 / 2");
+            System.out.println("Type 'exit' to quit");
 
-        System.out.println("Пример: (2 + 3) * 4 - 5 / 2");
-        System.out.println("'exit' для выхода");
+            while (true) {
+                System.out.print("\nEnter expression: ");
+                String input = scanner.nextLine().trim();
 
-        while (true) {
-            System.out.print("\nВведите выражение: ");
-            String input = scanner.nextLine().trim();
+                if (input.equalsIgnoreCase("exit")) {
+                    break;
+                }
 
-            if (input.equalsIgnoreCase("exit")) {
-                break;
-            }
+                if (input.isEmpty()) {
+                    continue;
+                }
 
-            if (input.isEmpty()) {
-                continue;
-            }
+                try {
+                    List<String> rpn = infixToRPN(input);
+                    System.out.println("RPN: " + String.join(" ", rpn));
 
-            try {
-                List<String> rpn = infixToRPN(input);
-                System.out.println("ОПН: " + String.join(" ", rpn));
+                    double result = evaluateRPN(rpn);
+                    System.out.println("Result: " + result);
 
-                double result = evaluateRPN(rpn);
-                System.out.println("Результат: " + result);
-
-            } catch (Exception e) {
-                System.out.println("Ошибка: " + e.getMessage());
+                } catch (Exception e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
             }
         }
-
-        scanner.close();
     }
 
     /**
-     * Преобразование инфиксной записи в обратную польскую нотацию
+     * Convert infix notation to Reverse Polish Notation
      */
     public static List<String> infixToRPN(String expression) {
         List<String> output = new ArrayList<>();
@@ -59,46 +63,46 @@ public class RPNCalc {
         while (i < expression.length()) {
             char c = expression.charAt(i);
 
-            if (Character.isDigit(c) || c == '.') {
+            if (Character.isDigit(c) || c == DECIMAL_POINT) {
                 StringBuilder number = new StringBuilder();
                 while (i < expression.length() &&
-                        (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '.')) {
+                        (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == DECIMAL_POINT)) {
                     number.append(expression.charAt(i));
                     i++;
                 }
                 output.add(number.toString());
                 continue;
             }
-            else if (c == '(') {
+            else if (c == LEFT_PARENTHESIS) {
                 operators.push(c);
             }
-            else if (c == ')') {
-                while (!operators.isEmpty() && operators.peek() != '(') {
+            else if (c == RIGHT_PARENTHESIS) {
+                while (!operators.isEmpty() && operators.peek() != LEFT_PARENTHESIS) {
                     output.add(String.valueOf(operators.pop()));
                 }
-                if (operators.isEmpty() || operators.peek() != '(') {
-                    throw new IllegalArgumentException("Несогласованные скобки");
+                if (operators.isEmpty() || operators.peek() != LEFT_PARENTHESIS) {
+                    throw new IllegalArgumentException("Mismatched parentheses");
                 }
                 operators.pop();
             }
             else if (isOperator(c)) {
                 while (!operators.isEmpty() &&
-                        operators.peek() != '(' &&
+                        operators.peek() != LEFT_PARENTHESIS &&
                         hasHigherPrecedence(operators.peek(), c)) {
                     output.add(String.valueOf(operators.pop()));
                 }
                 operators.push(c);
             }
             else {
-                throw new IllegalArgumentException("Недопустимый символ: " + c);
+                throw new IllegalArgumentException("Invalid character: " + c);
             }
 
             i++;
         }
 
         while (!operators.isEmpty()) {
-            if (operators.peek() == '(') {
-                throw new IllegalArgumentException("Несогласованные скобки");
+            if (operators.peek() == LEFT_PARENTHESIS) {
+                throw new IllegalArgumentException("Mismatched parentheses");
             }
             output.add(String.valueOf(operators.pop()));
         }
@@ -107,35 +111,35 @@ public class RPNCalc {
     }
 
     /**
-     * Вычисление выражения в ОПН
+     * Evaluate RPN expression
      */
     public static double evaluateRPN(List<String> rpn) {
         Stack<Double> stack = new Stack<>();
 
-        for (String s : rpn) {
-            if (isNumber(s)) {
-                stack.push(Double.parseDouble(s));
-            } else if (isOperator(s.charAt(0))) {
-                if (stack.size() < 2) {
-                    throw new IllegalArgumentException("Недостаточно операндов для операции " + s);
+        for (String token : rpn) {
+            if (isNumber(token)) {
+                stack.push(Double.parseDouble(token));
+            } else if (isOperator(token.charAt(0))) {
+                if (stack.size() < MIN_OPERANDS_FOR_BINARY_OPERATOR) {
+                    throw new IllegalArgumentException("Not enough operands for operation " + token);
                 }
 
                 double b = stack.pop();
                 double a = stack.pop();
-                double result = performOperation(s.charAt(0), a, b);
+                double result = performOperation(token.charAt(0), a, b);
                 stack.push(result);
             }
         }
 
-        if (stack.size() != 1) {
-            throw new IllegalArgumentException("Некорректное выражение");
+        if (stack.size() != EXPECTED_STACK_SIZE_AFTER_EVALUATION) {
+            throw new IllegalArgumentException("Invalid expression");
         }
 
         return stack.pop();
     }
 
     /**
-     * Выполнение математической операции
+     * Perform mathematical operation
      */
     private static double performOperation(char operator, double a, double b) {
         switch (operator) {
@@ -147,25 +151,25 @@ public class RPNCalc {
                 return a * b;
             case '/':
                 if (b == 0) {
-                    throw new ArithmeticException("Деление на ноль");
+                    throw new ArithmeticException("Division by zero");
                 }
                 return a / b;
             case '^':
                 return Math.pow(a, b);
             default:
-                throw new IllegalArgumentException("Неизвестный оператор: " + operator);
+                throw new IllegalArgumentException("Unknown operator: " + operator);
         }
     }
 
     /**
-     * Проверка, является ли символ оператором
+     * Check if character is an operator
      */
     private static boolean isOperator(char c) {
         return OPERATOR_PRECEDENCE.containsKey(c);
     }
 
     /**
-     * Проверка, является ли строка числом
+     * Check if string is a number
      */
     private static boolean isNumber(String str) {
         try {
@@ -177,7 +181,7 @@ public class RPNCalc {
     }
 
     /**
-     * Проверка приоритета операторов
+     * Check operator precedence
      */
     private static boolean hasHigherPrecedence(char op1, char op2) {
         return OPERATOR_PRECEDENCE.getOrDefault(op1, 0) >= OPERATOR_PRECEDENCE.getOrDefault(op2, 0);
