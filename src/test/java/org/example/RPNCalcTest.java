@@ -170,7 +170,7 @@ class RPNCalcTest {
      */
     @Test
     void testEvaluateRPN_InvalidExpression() {
-        List<String> expression = List.of("2", "3", "4");
+        List<String> expression = List.of("2", "3", "и");
         assertThrows(IllegalArgumentException.class,
                 () -> RPNCalc.evaluateRPN(expression));
     }
