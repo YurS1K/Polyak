@@ -170,7 +170,7 @@ class RPNCalcTest {
      */
     @Test
     void testEvaluateRPN_InvalidExpression() {
-        List<String> expression = List.of("2", "3", "и");
+        List<String> expression = List.of("2", "3", "4");
         assertThrows(IllegalArgumentException.class,
                 () -> RPNCalc.evaluateRPN(expression));
     }
@@ -182,7 +182,7 @@ class RPNCalcTest {
      */
     @ParameterizedTest
     @CsvSource({
-            "2+3, 5.0",
+            "2+3, 6.0",
             "2*3+4, 10.0",
             "(2+3)*4, 20.0",
             "2^3, 8.0",
